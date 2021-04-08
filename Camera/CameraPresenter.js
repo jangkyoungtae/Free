@@ -1,10 +1,10 @@
-import React from 'react';
-import { Dimensions, ToastAndroid } from 'react-native';
+import React, { useState } from 'react';
+import { Dimensions, Image, ToastAndroid } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import styled from 'styled-components/native';
 import { save } from '@react-native-community/cameraroll';
 import ImageResizer from 'react-native-image-resizer';
-import DocumentPicker from 'react-native-document-picker';
+import { useNavigation } from '@react-navigation/core';
 
 
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
@@ -24,16 +24,18 @@ const Button = styled.View`
   background-color: red;
 `;
 
-const Touchable = styled.TouchableOpacity``;
+const Touchable = styled.TouchableOpacity`
+    
+`;
 
 const REST_API_KEY = '35cd6f93b1dda48ab1f3af7da6b32112';
 
-const OCR_Text = async (uri) => {
-    const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.images],
-    });
-    console.log(res);
-    ImageResizer.createResizedImage(uri, 2048, 2048, 'JPEG', 50, 0, undefined, false, { mode: 'contain', onlyScaleDown: true })
+const OCR_Text = async (navigation, route, uri) => {
+    // const res = await DocumentPicker.pick({
+    //     type: [DocumentPicker.types.images],
+    // });
+    // console.log(res);
+    ImageResizer.createResizedImage(uri, 2048, 2048, 'JPEG', 60, 0, undefined, false, { mode: 'contain', onlyScaleDown: true })
         .then(resizedImage => {
             const body = new FormData();
             console.log('resize', resizedImage.uri);
@@ -48,13 +50,19 @@ const OCR_Text = async (uri) => {
             }).then(response => response.json())
                 .then(json => {
                     // 받은 json으로 기능 구현
+                    console.log(json);
                     const text = [];
-                    json.result.map((item) => {
+                    json.result ? json.result.map((item) => {
                         text.push(item.recognition_words[0]);
-                    })
+                    }) : text.push("없음");
                     return text;
                 }).then(result => {
-                   
+                    console.log('result', result);
+                    const res = result.join(" ");
+                    route.params.onPlaceChosen(
+                        res
+                    );
+                    navigation.goBack();
                 });
         })
         .catch(err => {
@@ -73,10 +81,12 @@ const OCR_Text = async (uri) => {
 
 }
 
-export default function Camera() {
-
-
+export default function Camera({ navigation, route }) {
+    
+   
+    
     const cameraRef = React.useRef(null); // useRef로 camera를 위한 ref를 하나 만들어주고
+    
 
     const takePhoto = async () => {
         // console.log('cameraRef', cameraRef);
@@ -85,11 +95,8 @@ export default function Camera() {
                 quality: 1,
                 exif: true,
             });
-            await OCR_Text(data.uri);
-            //const localFile = data.uri;
-            // const asd = await MLKit(localFile);
             if (data) {
-
+            
                 save(data.uri, 'photo').then(onfulfilled => {
 
 
@@ -100,6 +107,10 @@ export default function Camera() {
                 });
 
             }
+           // await OCR_Text(navigation, route, data.uri);
+            //const localFile = data.uri;
+            // const asd = await MLKit(localFile);
+
         }
     };
 
@@ -110,7 +121,7 @@ export default function Camera() {
                 ref={cameraRef}
                 style={{
                     width: WIDTH,
-                    height: HEIGHT - 100,
+                    height: HEIGHT - 200,
                     zIndex: 1,
                 }}
                 ratio={'2:2'}
@@ -127,12 +138,18 @@ export default function Camera() {
                     buttonNegative: 'Cancel',
                 }}
                 captureAudio={false} />
-            <View>
+            <View
+                style={{
+                    width: WIDTH,
+                    height: HEIGHT - 200,
+                    zIndex: 1,
+                    backgroundColor: '#2e2e2e'
+                }}>
                 <Touchable onPress={takePhoto}>
                     <Button />
                 </Touchable>
             </View>
-
+            
         </>
 
     )
