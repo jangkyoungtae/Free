@@ -12,6 +12,10 @@ target 'scanner01' do
     :hermes_enabled => false
   )
 
+  pod 'react-native-cameraroll', :path => '../node_modules/@react-native-community/cameraroll'
+
+  pod 'react-native-image-resizer', :path => '../node_modules/react-native-image-resizer'
+
   target 'scanner01Tests' do
     inherit! :complete
     # Pods for testing
