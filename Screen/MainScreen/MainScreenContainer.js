@@ -3,8 +3,9 @@ import MainScreenPresenter from './MainScreenPresenter';
 
 
 
-export default ({ navigation}) => {
+export default (props) => {
+    
     return (
-        <MainScreenPresenter navigation={navigation}/>
+        <MainScreenPresenter route={props.route}/>
     )
 }

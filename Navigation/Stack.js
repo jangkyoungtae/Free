@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import Camera from './Camera';
-import MainScreen from './MainScreen';
+import Camera from '../Screen/Camera';
+import MainScreen from '../Screen/MainScreen';
 
 const Stack = createStackNavigator();
 
